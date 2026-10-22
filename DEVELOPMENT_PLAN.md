@@ -3205,3 +3205,10 @@ Task 1–14 的业务实现、迁移、测试和远程 required jobs 已完成�
 - 删除安全性：删除前逐一核对 8 个分支 SHA 与远端完全一致；所有被删分支在 `al-platform-backup`（老仓库）与老项目本地仓库仍完整保留，可随时恢复。老项目 `.worktrees/` 目录全程未动。
 - 记录事件：本条记录同日首次写入后曾丢失（文件被还原到 HEAD 版本，原因未查实，疑为外部还原/覆盖操作），本段为按最终状态重写的合并记录；后续编辑本文件后建议立即核对 `git status` 确认改动仍在。
 - 环境注意：① 本仓库 `.git/config` 配有本地代理 `http://127.0.0.1:7897`，直连 GitHub 超时不可用；推送报 `Could not connect to server over proxy` 时先确认代理客户端在运行——代理启动初期可能瞬时拒绝连接，重试即可。② push 时 Mimosa 安全钩子报 `scanner_enobufs`（未取得完整扫描结论、按兼容策略放行），如需完整安全审计须另行运行。
+
+## 2026-10-22 追加：远程 CI Windows flaky 修复（同步应用于老项目）
+
+- 现象：推送到 Al-Platform_v1 后 CI "Cross-platform quality gates" 的 Windows job 失败（run `39704541195`，绑定 `8d1d688`）：156 个后端模块 155 过，唯一失败 `test_api_runs::TestCancelFinalizesUnderCelery::test_latest_run_endpoint`，断言两个 run UUID 不等（Ubuntu 全绿；docs-only 提交不可能影响代码）。
+- 根因：测试在 `test_api_runs.py` 用 `datetime.now(timezone.utc)` 连续创建两条 run，`/runs/latest` 按 `started_at.desc()` 排序无次级键；Windows 时钟粒度（约 15ms）使两次取时返回相同值 → 排序并列 → 返回顺序不定 → 断言偶发失败。与台账在案的"Windows CI flaky 重跑消失"历史吻合。
+- 修复（用户指令同步应用于本副本与老项目）：`TestCancelFinalizesUnderCelery.setUpClass` 增加类级序号 `_run_seq`，`_make_run` 按序号给 `started_at` 显式加整秒偏移，保证任意时钟粒度下严格递增；不改产品代码与接口合同。两仓库该文件内容一致，修复补丁相同。
+- 验证：两项目本地各跑 `python -m unittest tests.test_api_runs`（老项目 venv、临时 SQLite）均 9/9 OK；远端复验 run `39712759166`（绑定副本 `82fcf09`）**全绿**：Quality windows-latest ✓（1h15m52s，含原失败模块 test_api_runs）、Quality ubuntu-22.04 ✓（42m38s），另有 4 个条件 job（Production integration ×2、Chromium acceptance、Week 11-12 verification）按触发条件跳过（0s）。原 run `39704541195` 的失败 job 复跑被并发策略取消（新推送优先），无独立结论。副本提交 `82fcf09` 已推送；老项目提交 `384fdf2` 仅本地提交、未推送（沿用其批量推送习惯；补丁与 `82fcf09` 完全相同）。事件记录：给老项目追加台账时误用 `git commit --amend`，恰逢并行会话提交 v0.7 方案（`ee7457c`），台账段落被并入该提交——内容无损、归属混合，未做历史重写（仓库有并行写入者，重写风险大于收益）。
