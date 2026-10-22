@@ -3196,3 +3196,12 @@ Task 1–14 的业务实现、迁移、测试和远程 required jobs 已完成�
 - 修复：① `_mlp_builder` 固定 `early_stopping=False`（小不平衡数据正解；正则化由 alpha、轮数由 CV 搜索的 max_iter 承担）；② trial 异常时 `set_user_attr("error_message", str(error)[:300])`，`TrialSummary` 增加 `error_message` 字段透传——页面从此显示 trial 失败的真实原因而非裸错误码。
 - 验证：新增 `test_mlp_adam_survives_small_imbalanced_dataset`（46 行/正类 3 条、adam 固定，断言 failed_trials=0）；automl 四套件 109 passed；backend/worker 镜像重建部署、健康检查通过。
 - 数据建议（用户侧同根因解法）：46 行/正类 3 条对 5 折 CV 极紧，建议扩充正类或合并数据集；修复保证不再崩溃，但极小正类下 CV 指标波动大，模型可信度有限。
+
+## 2026-10-22 仓库定位调整与分支清理：本目录转为备份副本，同步目标切换至 Al-Platform_v1
+
+- 用户决策：本目录（agent_spot_welding_copy）由 `E:\codex_workspace\agent_spot_welding` 完整复制而来，作为原有需求与开发任务的**备份副本**；后续新功能在老项目开发，本副本不再承载新功能开发，也不主动从老项目拉取新增提交（冻结快照，仅用户明确要求时手动更新）。
+- 远端切换：原 `origin`（`FaceGg/Al-Platform`）改名保留为 `al-platform-backup`，本副本不再向其推送；新建私有仓库 [`FaceGg/Al-Platform_v1`](https://github.com/FaceGg/Al-Platform_v1) 作为同步目标并设为 `origin`。
+- 分支与工作树清理（用户指令"只保留 main，其他都可删除"）：本地删除 8 个非 main 分支（codex/spot-weld-quality、codex/week13-week17、codex/week9-12-mlops-core、codex/zhinqing-branding-hold、general-automl-annotation-20260902、release/r15–r17）；`git worktree prune` 清理 3 条指向老项目 `.worktrees/` 的过期登记（git 自证 prunable，未触碰老项目实际文件）；用户随后追加指令，Al-Platform_v1 远端同名 8 分支也全部删除并 `fetch --prune`。清理后本地与 Al-Platform_v1 均只剩 `main`（`2704e98`）+ 标签 20261013-r14、20261014-r15。
+- 删除安全性：删除前逐一核对 8 个分支 SHA 与远端完全一致；所有被删分支在 `al-platform-backup`（老仓库）与老项目本地仓库仍完整保留，可随时恢复。老项目 `.worktrees/` 目录全程未动。
+- 记录事件：本条记录同日首次写入后曾丢失（文件被还原到 HEAD 版本，原因未查实，疑为外部还原/覆盖操作），本段为按最终状态重写的合并记录；后续编辑本文件后建议立即核对 `git status` 确认改动仍在。
+- 环境注意：① 本仓库 `.git/config` 配有本地代理 `http://127.0.0.1:7897`，直连 GitHub 超时不可用；推送报 `Could not connect to server over proxy` 时先确认代理客户端在运行——代理启动初期可能瞬时拒绝连接，重试即可。② push 时 Mimosa 安全钩子报 `scanner_enobufs`（未取得完整扫描结论、按兼容策略放行），如需完整安全审计须另行运行。

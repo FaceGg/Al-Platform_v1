@@ -2,11 +2,21 @@
 
 灵工（Linkraft）是一个面向数据、模型和工作流协同开发的 Web 平台。仓库同时保留已经交付的平台基础能力，以及正在规划的通用 AutoML 与数据标注平台；两者的状态和验收边界由当前开发计划统一管理。
 
+## 仓库定位（2026-10-22 更新）
+
+> **本仓库自 2026-10-22 起转为备份副本，不再是活跃开发仓库。**
+
+- 本目录由活跃开发项目 `E:\codex_workspace\agent_spot_welding` 完整复制而来，用于保存原有需求和开发任务记录。
+- 活跃开发（新功能）在老项目中进行，对应 GitHub 仓库 [FaceGg/Al-Platform](https://github.com/FaceGg/Al-Platform)；本仓库不再向其推送。
+- 本仓库为冻结快照（main `2704e98`，2026-10-22），远端指向私有仓库 [FaceGg/Al-Platform_v1](https://github.com/FaceGg/Al-Platform_v1)；不主动从老项目同步新增提交，仅在明确要求更新备份时手动同步。
+- 分支只保留 `main`，另有发布标签 `20261013-r14`、`20261014-r15`；其余历史分支的完整备份保留在老仓库 Al-Platform 与老项目本地。
+- 下文的计划、状态和验收说明均为备份时刻的平台状态记录，供追溯使用。
+
 ## 当前状态
 
 - Week 1-12 的平台基础能力和历史验收已归档为 `passed` / `completed`，不属于当前实施范围。
 - 通用自动建模与数据标注平台的 Task 1-13 已有实现和局部验收记录；Task 14 已在主分支 SHA `3fc246980b32c463a9c120573a0b0058bed8d9e7` 收口：六作业 full CI、64 文件最终 evidence manifest、19 项 receipt，以及 CLU-02、AUTH-02、AUTO-02、REL-01 的真实容量、双服务安全、worker 注册和恢复证据均按当前 SHA 校验通过。当前容量范围按用户确认支持 10,000 样本，不承诺百万样本。
-- Week 13-16（Kubernetes、Job/Pod、Notebook/GPU、多集群）为 `planned`；Week 17（数据探索与质量报告）范围已于 2026-09-28 获批，保持 `planned` 待实现；Week 18-20 为 `deferred`。
+- Week 13-16（Kubernetes 基础接入、Job/Pod 执行闭环、Notebook/镜像/GPU、多集群与资源治理）已逐周收口为 `completed`（本地聚焦测试、真实 kind 集群 smoke、浏览器验收与远端 CI 收据，证据与 SHA 见 [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)）；Week 17（数据探索与质量报告）范围已于 2026-09-28 获批，保持 `planned` 待实现；Week 18-20 为 `deferred`。
 - 多模态标注集成（Label Studio 深度集成）于 2026-09-28 决策评审后**暂缓**（`deferred`，用户决定）；方案与 D2–D8 结论归档备查，表格标注保持自研门户不迁移。
 - 仓库仍包含部分行业化历史实现。通用平台开发必须先完成 Task 1 的去行业化盘点和迁移边界，不能把现有页面、路由或历史文档当作通用功能已完成的证据。
 
